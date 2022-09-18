@@ -1,3 +1,5 @@
+
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 using namespace std;
@@ -26,6 +28,14 @@ Vector2f RandomVertexPosition(vector<RectangleShape> vertices)
 Vector2f randomVertexPositionSquare(vector<RectangleShape> vertices)
 {
     int randomIndex = 0 + rand() % 4;
+
+    return vertices[randomIndex].getPosition();
+}
+
+// Pick random vertex for a pentagon.
+Vector2f randomVertexPositionPentagon(vector<RectangleShape> vertices)
+{
+    int randomIndex = 0 + rand() % 5;
 
     return vertices[randomIndex].getPosition();
 }
@@ -107,14 +117,295 @@ enum ShapeType
     SQUARE
 };
 
-
 // -----------------------------------------
 // -----------------------------------------
 
-
-int main() // SQUARE
+int main5()
 {
-    bool changed = false;
+    srand(time(0));
+
+    // Defines the rate of drawing in seconds. Decreasing this value will make the drawing process
+    // slower a little bit. But you will see many points drawn in realtime.
+    float drawingRate = 0.1;    // was 0.5
+    float nextTimeToDraw = 0;
+    double elapsedTime = 0;
+
+    Clock clock;
+
+    int screenRes_X = 1920;
+    int screenRes_Y = 1080;
+
+    VideoMode videoModeObject(screenRes_X, screenRes_Y);
+    RenderWindow window(videoModeObject, "Chaos Game", Style::Default);
+
+    RectangleShape myShape;
+
+    Vector2f size;
+    size.x = 3;
+    size.y = 3;
+
+    ShapeType shapeType = ShapeType::PENTAGON;  // This will need to be dealt with
+
+    vector<RectangleShape> pentagonVertexList;
+    vector<RectangleShape> shapeVertices; // Redundant with pentagonVertexList
+    vector<RectangleShape> pointsToDraw;
+
+    RectangleShape starterPoint;
+    RectangleShape midwayPoint;
+    RectangleShape previousPoint;
+
+    RectangleShape lastVertex;
+    Vector2f lastVertexPos;
+    int lastVertexIndex = 0;
+
+    Vector2f randomVertex;
+
+    bool firstRun = true;
+
+    int counter = 0;    // NOT CURRENTLY IN USE
+    
+    while (window.isOpen())
+    {
+        //window.display();
+
+        // Closes the game window if the user presses the Escape Button
+        if (Keyboard::isKeyPressed(Keyboard::Escape))
+        {
+            window.close();
+        }
+
+        Time deltaTime = clock.restart();
+        Vector2i mousePosition;
+        Event event;
+
+        // Checks if the user pressed left mouse button
+        bool isLeftMouseButtonPressed;
+        isLeftMouseButtonPressed = false;
+        while (window.pollEvent(event))
+        {
+            //cout << "Cran1" << endl;
+            if (event.type == Event::MouseButtonPressed)
+            {
+                //cout << "Cran2" << endl;
+                if (event.mouseButton.button == Mouse::Left)
+                {
+                    //cout << "Cran3" << endl;
+                    isLeftMouseButtonPressed = true;
+                }
+            }
+
+        }
+
+        //if (isLeftMouseButtonPressed == true)
+        //{
+        //   mousePosition.x = event.mouseButton.x;
+        //    mousePosition.y = event.mouseButton.y;
+        //}
+
+      
+
+
+
+        //if (shapeType == ShapeType::PENTAGON)
+        //{ 
+        
+          // If user has not yet selected all vertices, then keep getting the vertices
+        if (pentagonVertexList.size() < 5)
+        {
+            //cout << "Apple";
+            if (isLeftMouseButtonPressed == true)
+            {
+                //cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" << endl << endl;
+                mousePosition = Mouse::getPosition(window);
+                pentagonVertexList.push_back(Point(mousePosition.x, mousePosition.y));
+
+                //EXPERIMENT
+                //window.draw(Point(mousePosition.x, mousePosition.y));
+
+            }
+        }
+
+        else
+        {
+            // If user has selected the vertices
+            // but not yet selected the starter point, that is the first point after selecting
+            //  the vertices,
+            // then collect it from them, and also set previousPoint equal to the same as 
+            // whatever you get from the user
+            if (starterPoint.getPosition() == Vector2f(0, 0))
+            {
+                if (isLeftMouseButtonPressed)
+                {
+                    mousePosition = Mouse::getPosition(window);
+                    starterPoint = Point(mousePosition.x, mousePosition.y);
+                    previousPoint = starterPoint;
+
+                }
+            }
+
+            // START PRINTING POINTS ACCORDING TO ALGORITHM
+            // If the user has selected the vertices and the starter point
+            // go agead and start main algorithm
+            else
+            {    // If this is first run of main algorithm, make sure the "last vertex" is 
+                // arbitrarily set to something
+                if (firstRun == true)
+                {
+                    lastVertexPos = pentagonVertexList[0].getPosition();
+                    lastVertex = pentagonVertexList[0];
+                    lastVertexIndex = 0;
+
+
+                    // And then if the user clicks, set that to the first point
+                    if (isLeftMouseButtonPressed)
+                    {
+                        mousePosition = Mouse::getPosition(window);
+                        starterPoint = Point(mousePosition.x, mousePosition.y);
+                        previousPoint = starterPoint;
+                    }
+
+                    //Now that the first run is over, make sure this part doesn't happen again
+                    firstRun = false;
+                }
+
+                // If this is not the first run, choose a random 
+                // vertex and then find the 
+                // midway point between it, 
+                // and the previous point. Afterwards, 
+                // set this midway point to be the previous point 
+                // once you have added it to the vector of points to draw.
+                else
+                {
+                    // STILL NEED TO WRITE THIS FUNCTION !!!!!!
+                    // !!!####```|||[[[{{~#[{~#[~|{[`[||[\[|#\#[|\[|#
+                    //-|[{||[{|#{|#{|#{|#{|{#|#{|#{|#{|#{|#{|#{|{#|#{-
+                    randomVertex = randomVertexPositionPentagon(pentagonVertexList); // If this returns lastVertesPos, then the 
+                                                                                    // while loop just below will be triggered
+                                                                                    // until we get something other than lastVertexPos.
+                    while (randomVertex == lastVertexPos)
+                    {
+                        // Trying again...
+                        randomVertex = randomVertexPositionPentagon(pentagonVertexList);
+                    }
+
+                    lastVertexPos = randomVertex;
+                    firstRun = false;   // Redundant???
+
+                    double midwayPointX = (randomVertex.x + previousPoint.getPosition().x) / 2.0;
+                    double midwayPointY = (randomVertex.y + previousPoint.getPosition().y) / 2.0;
+                    midwayPoint = Point(midwayPointX, midwayPointY);
+                    previousPoint = midwayPoint;
+
+                    // We have the midway point, so adding it to the vector now
+                    pointsToDraw.push_back(previousPoint);
+
+                    counter++;  // May need this later
+
+
+
+
+
+
+                }
+
+                
+                
+            }
+
+        }
+
+
+
+
+        // Printing out everything in the vectors
+        // ---------------------------------------------------------------------
+        
+        
+        // If you use index < 5 it gives out of range error. Dont really know why
+        for (int index = 0; index < pentagonVertexList.size(); index++)
+        {
+            //window.draw(pentagonVertexList[index]);
+            window.draw(pentagonVertexList.at(index));
+        }
+           
+        /*
+        // Does same as above loop
+        for (RectangleShape point : pentagonVertexList)
+        {
+            window.draw(point);
+        }
+        */
+        
+
+
+
+        //window.clear(); //
+        elapsedTime += 1 * deltaTime.asSeconds();
+        if (elapsedTime >= nextTimeToDraw)
+        {
+            nextTimeToDraw = drawingRate + elapsedTime;
+
+            // CURRENTLY PRINTING HERE
+            //window.clear();
+            for (auto& point : pointsToDraw)
+            {
+                //point.setFillColor(color);
+                window.draw(point);
+            }
+        }
+        window.display();
+        // ----------------------------------------------------------------------------
+
+
+    }   // end main while loop
+
+
+
+        
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+
+
+
+// -----------------------------------------
+// -----------------------------------------
+
+
+int main9() // SQUARE
+{
+    bool changed = false;   // Probably delete
     srand(time(0));
 
     // Defines the rate of drawing in seconds. Decreasing this value will make the drawing process
@@ -174,10 +465,13 @@ int main() // SQUARE
         isLeftMouseButtonPressed = false;
         while (window.pollEvent(event))
         {
+            cout << "berry1" << endl;
             if (event.type == Event::MouseButtonPressed)
             {
+                cout << "berry2" << endl;
                 if (event.mouseButton.button == Mouse::Left)
                 {
+                    cout << "berry3" << endl;
                     isLeftMouseButtonPressed = true;
                 }
             }
@@ -348,13 +642,14 @@ int main() // SQUARE
 
 
 
-
+            //window.clear(); //
             elapsedTime += 1 * deltaTime.asSeconds();
-            if (elapsedTime >= nextTimeToDraw)
-            {
+            //if (elapsedTime >= nextTimeToDraw)
+            //{
                 nextTimeToDraw = drawingRate + elapsedTime;
 
                 // CURRENTLY PRINTING HERE
+                //window.clear();
                 for (auto& point : pointsToDraw)
                 {
                     point.setFillColor(color);
@@ -386,7 +681,7 @@ int main() // SQUARE
                 }
                 // -----------------------------------------------------------------------------------------
                 */
-            }
+            //}
 
     } //end while loop
 
@@ -428,7 +723,7 @@ int main() // SQUARE
 
 
 
-int main1()
+int main2()
 {
     srand(time(0));
 

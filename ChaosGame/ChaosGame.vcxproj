@@ -133,7 +133,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ChaosGame.cpp" />
+    <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="hexagon2.cpp" />
+    <ClCompile Include="square2.cpp" />
+    <ClCompile Include="triangle2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
